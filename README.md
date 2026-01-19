@@ -30,3 +30,10 @@ To learn more about Next.js, take a look at the following resources:
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
 
+S C:\Users\Bhoomika Jain\Desktop\bizlytics> git push origin main
+fatal: unable to access 'https://github.com/jwecodes/bizlytics.git/': Failed to connect to github.com port 443 after 21059 ms: Could not connect to server
+PS C:\Users\Bhoomika Jain\Desktop\bizlytics> git push origin main
+fatal: unable to access 'https://github.com/jwecodes/bizlytics.git/': Failed to connect to github.com port 443 after 21061 ms: Could not connect to server
+PS C:\Users\Bhoomika Jain\Desktop\bizlytics> git add .
+PS C:\Users\Bhoomika Jain\Desktop\bizlytics> git commit -m "initial commit"
+On branch main
