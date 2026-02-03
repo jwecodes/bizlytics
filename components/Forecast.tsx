@@ -22,7 +22,7 @@ export default function Forecast() {
       </ResponsiveContainer>
 
       <p className="text-gray-400 mt-4 text-sm">
-        Forecast generated using historical trend analys
+        Forecast generated using historical trend analysis.
       </p>
     </div>
   );
