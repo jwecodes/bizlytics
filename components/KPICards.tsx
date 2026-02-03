@@ -30,7 +30,7 @@ export default function KPICards() {
             ) : (
               <TrendingDown className="text-red-400" size={14} />
             )}
-            vs last per
+            vs last period
           </p>
         </div>
       ))}
