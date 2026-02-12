@@ -80,7 +80,7 @@ export default function Insights() {
                 View Details
               </button>
               <button className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm">
-                Explain Wh
+                Explain Why
               </button>
             </div>
           </div>
