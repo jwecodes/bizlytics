@@ -25,7 +25,7 @@ export default function CategoryPie() {
   return (
     <div className="bg-black/30 backdrop-blur-xl border border-white/10 rounded-2xl p-6">
       <h3 className="text-lg font-semibold mb-6">
-        Sales by Category
+        Sales by Categor
       </h3>
 
       <div className="flex flex-col lg:flex-row items-center gap-6">
