@@ -1,0 +1,87 @@
+import { BarChart3, TrendingUp, Shield, Brain, Zap, GitCompare } from "lucide-react"
+import FileDropzone from "@/components/upload/FileDropzone"
+
+const features = [
+  { icon: <TrendingUp className="w-5 h-5 text-purple-400" />, label: "Auto KPIs", desc: "Generated from your columns instantly" },
+  { icon: <Shield className="w-5 h-5 text-blue-400" />, label: "Anomaly Detection", desc: "ML-powered outlier detection" },
+  { icon: <BarChart3 className="w-5 h-5 text-green-400" />, label: "Forecasting", desc: "90-day Prophet predictions" },
+  { icon: <Brain className="w-5 h-5 text-yellow-400" />, label: "AI Insights", desc: "Trends, risks & recommendations" },
+  { icon: <Zap className="w-5 h-5 text-pink-400" />, label: "Chat with Data", desc: "Ask questions in plain English" },
+  { icon: <GitCompare className="w-5 h-5 text-cyan-400" />, label: "Compare Datasets", desc: "Side-by-side diff analysis" },
+]
+
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-[#0d0e1a] flex flex-col items-center justify-center p-8 relative overflow-hidden">
+
+      {/* Background glow */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/4 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="relative z-10 w-full max-w-2xl flex flex-col items-center">
+
+        {/* Logo */}
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center shadow-lg shadow-purple-500/30">
+            <BarChart3 className="w-6 h-6 text-white" />
+          </div>
+          <div>
+            <p className="text-2xl font-bold text-white leading-none">Bizlytics</p>
+            <p className="text-xs text-white/30 mt-0.5">AI-Powered Business Intelligence</p>
+          </div>
+        </div>
+
+        {/* Headline */}
+        <h1 className="text-4xl md:text-5xl font-bold text-white text-center leading-tight mb-3">
+          Turn your data into
+          <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"> insights</span>
+        </h1>
+        <p className="text-white/40 text-center mb-8 max-w-md text-sm leading-relaxed">
+          Upload any CSV or Excel file and get instant AI-powered analysis — KPIs, anomalies, forecasts, charts, and recommendations in seconds.
+        </p>
+
+        {/* Format badges */}
+        <div className="flex gap-2 mb-8">
+          {["CSV", "XLSX", "XLS"].map((fmt) => (
+            <span key={fmt} className="text-xs bg-white/10 text-white/50 px-3 py-1.5 rounded-full font-medium border border-white/10">
+              {fmt}
+            </span>
+          ))}
+        </div>
+
+        {/* Upload Box */}
+        <div className="w-full mb-8">
+          <FileDropzone />
+        </div>
+
+        {/* Features Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 w-full mb-8">
+          {features.map((f) => (
+            <div key={f.label} className="bg-white/5 border border-white/10 rounded-2xl p-4 flex items-start gap-3 hover:bg-white/8 transition-colors">
+              <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                {f.icon}
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-white">{f.label}</p>
+                <p className="text-xs text-white/30 mt-0.5 leading-relaxed">{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Compare link */}
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-xs text-white/20">Already have two datasets to compare?</p>
+          <a
+            href="/compare"
+            className="flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors"
+          >
+            <GitCompare className="w-4 h-4" />
+            Compare two datasets side by side →
+          </a>
+        </div>
+
+      </div>
+    </main>
+  )
+}
