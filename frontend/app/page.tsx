@@ -26,7 +26,7 @@ export default function Home() {
             <BarChart3 className="w-6 h-6 text-white" />
           </div>
           <div>
-            <p className="text-2xl font-bold text-white leading-none">Bizlytic</p>
+            <p className="text-2xl font-bold text-white leading-none">Bizlytics</p>
             <p className="text-xs text-white/30 mt-0.5">AI-Powered Business Intelligence</p>
           </div>
         </div>
