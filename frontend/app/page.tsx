@@ -33,7 +33,7 @@ export default function Home() {
 
         {/* Headline */}
         <h1 className="text-4xl md:text-5xl font-bold text-white text-center leading-tight mb-3">
-          Turn your data into
+          Turn your data int
           <span className="bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent"> insights</span>
         </h1>
         <p className="text-white/40 text-center mb-8 max-w-md text-sm leading-relaxed">
