@@ -471,7 +471,7 @@ export default function DashboardPage() {
                 <div className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3">
                   <LineChart className="w-6 h-6 text-blue-400" />
                   <div>
-                    <p className="font-semibold text-white">90-Day Forecas</p>
+                    <p className="font-semibold text-white">90-Day Forecast</p>
                     <p className="text-xs text-white/30">
                       Prophet model — trend:{" "}
                       <span className="text-blue-400 font-medium">
