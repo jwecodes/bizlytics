@@ -57,9 +57,12 @@ export default function ChatWidget({ fileId }: { fileId: string }) {
       {/* Floating Button */}
       <button
         onClick={() => setOpen(o => !o)}
-        className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-blue-600 hover:bg-blue-700 
-                   text-white rounded-full shadow-lg flex items-center justify-center 
-                   transition-all duration-200 hover:scale-110"
+        className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full shadow-xl
+                   bg-gradient-to-br from-purple-500 to-blue-600
+                   hover:from-purple-600 hover:to-blue-700
+                   text-white flex items-center justify-center
+                   transition-all duration-200 hover:scale-110
+                   shadow-purple-500/30"
       >
         {open
           ? <X className="w-6 h-6" />
@@ -69,35 +72,46 @@ export default function ChatWidget({ fileId }: { fileId: string }) {
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-96 h-[520px] bg-card border border-border 
-                        rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed bottom-24 right-6 z-50 w-96 h-[520px]
+                        bg-[#13141f] border border-white/10
+                        rounded-2xl shadow-2xl shadow-black/50
+                        flex flex-col overflow-hidden">
 
           {/* Header */}
-          <div className="bg-blue-600 px-4 py-3 flex items-center gap-3">
+          <div className="bg-gradient-to-r from-purple-600 to-blue-600 px-4 py-3 flex items-center gap-3 shrink-0">
             <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
               <Bot className="w-4 h-4 text-white" />
             </div>
             <div>
               <p className="text-white font-semibold text-sm">Ask Your Data</p>
-              <p className="text-blue-100 text-xs">Powered by AI</p>
+              <p className="text-white/60 text-xs">Powered by AI</p>
             </div>
+            <button
+              onClick={() => setOpen(false)}
+              className="ml-auto text-white/40 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 bg-[#13141f]">
             {messages.map((msg, i) => (
               <div key={i} className={`flex gap-2 ${msg.role === "user" ? "flex-row-reverse" : "flex-row"}`}>
-                <div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-xs
-                  ${msg.role === "user" ? "bg-blue-600" : "bg-muted"}`}>
+                <div className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center
+                  ${msg.role === "user"
+                    ? "bg-gradient-to-br from-purple-500 to-blue-600"
+                    : "bg-white/10 border border-white/10"
+                  }`}>
                   {msg.role === "user"
                     ? <User className="w-3 h-3 text-white" />
-                    : <Bot className="w-3 h-3 text-foreground" />
+                    : <Bot className="w-3 h-3 text-white/60" />
                   }
                 </div>
                 <div className={`max-w-[75%] px-3 py-2 rounded-2xl text-sm leading-relaxed
                   ${msg.role === "user"
-                    ? "bg-blue-600 text-white rounded-tr-sm"
-                    : "bg-muted text-foreground rounded-tl-sm"
+                    ? "bg-gradient-to-br from-purple-500 to-blue-600 text-white rounded-tr-sm"
+                    : "bg-white/10 text-white/80 rounded-tl-sm border border-white/5"
                   }`}>
                   {msg.content}
                 </div>
@@ -106,27 +120,36 @@ export default function ChatWidget({ fileId }: { fileId: string }) {
 
             {loading && (
               <div className="flex gap-2">
-                <div className="w-7 h-7 rounded-full bg-muted flex items-center justify-center">
-                  <Bot className="w-3 h-3 text-foreground" />
+                <div className="w-7 h-7 rounded-full bg-white/10 border border-white/10 flex items-center justify-center">
+                  <Bot className="w-3 h-3 text-white/60" />
                 </div>
-                <div className="bg-muted px-3 py-2 rounded-2xl rounded-tl-sm flex items-center gap-1">
-                  <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Analyzing...</span>
+                <div className="bg-white/10 border border-white/5 px-3 py-2 rounded-2xl rounded-tl-sm flex items-center gap-2">
+                  <div className="flex gap-1">
+                    {[0, 1, 2].map(i => (
+                      <span
+                        key={i}
+                        className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce"
+                        style={{ animationDelay: `${i * 0.15}s` }}
+                      />
+                    ))}
+                  </div>
+                  <span className="text-xs text-white/30">Analyzing...</span>
                 </div>
               </div>
             )}
             <div ref={bottomRef} />
           </div>
 
-          {/* Suggested Questions — only show at start */}
+          {/* Suggested Questions — only at start */}
           {messages.length === 1 && (
-            <div className="px-4 pb-2 flex flex-wrap gap-2">
+            <div className="px-4 pb-2 flex flex-wrap gap-2 bg-[#13141f]">
               {SUGGESTED.map((s, i) => (
                 <button
                   key={i}
                   onClick={() => send(s)}
-                  className="text-xs bg-muted hover:bg-muted/80 text-muted-foreground 
-                             px-3 py-1.5 rounded-full border border-border transition-colors text-left"
+                  className="text-xs bg-white/5 hover:bg-white/10 text-white/40 hover:text-white/70
+                             px-3 py-1.5 rounded-full border border-white/10 hover:border-white/20
+                             transition-all text-left"
                 >
                   {s}
                 </button>
@@ -135,22 +158,26 @@ export default function ChatWidget({ fileId }: { fileId: string }) {
           )}
 
           {/* Input */}
-          <div className="p-3 border-t border-border flex gap-2">
+          <div className="p-3 border-t border-white/10 bg-[#13141f] flex gap-2 shrink-0">
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === "Enter" && send()}
               placeholder="Ask anything about your data..."
-              className="flex-1 bg-muted border border-border rounded-xl px-3 py-2 
-                         text-sm text-foreground placeholder:text-muted-foreground
-                         focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-3 py-2
+                         text-sm text-white placeholder:text-white/20
+                         focus:outline-none focus:ring-2 focus:ring-purple-500/50
+                         focus:border-purple-500/50 transition-all"
             />
             <Button
               size="sm"
               onClick={() => send()}
               disabled={!input.trim() || loading}
-              className="bg-blue-600 hover:bg-blue-700 rounded-xl px-3"
+              className="bg-gradient-to-r from-purple-500 to-blue-500
+                         hover:from-purple-600 hover:to-blue-600
+                         text-white border-0 rounded-xl px-3
+                         disabled:opacity-30"
             >
               <Send className="w-4 h-4" />
             </Button>

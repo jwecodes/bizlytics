@@ -3,31 +3,40 @@ import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import { AnalysisResult } from "@/lib/types"
 import KPICard from "@/components/dashboard/KPICard"
-import InsightPanel from "@/components/dashboard/InsightPanel"
-import HistoricalForecastChart from "@/components/dashboard/HistoricalForecastChart"
-import AnomalyChart from "@/components/dashboard/AnomalyChart"
-import CorrelationHeatmap from "@/components/dashboard/CorrelationHeatmap"
-import WhatIfSimulator from "@/components/dashboard/WhatIfSimulator"
-import DataStory from "@/components/dashboard/DataStory"
 import DataHealthCard from "@/components/dashboard/DataHealthCard"
-import ChatWidget from "@/components/dashboard/ChatWidget"
-import CategoryDonutChart from "@/components/dashboard/CategoryDonutChart"
-import TopNBarChart from "@/components/dashboard/TopNBarChart"
 import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import {
   BarChart3, Upload, RefreshCw, Loader2,
-  Database, TrendingUp, ShieldAlert, LineChart, PieChart
+  Database, TrendingUp, ShieldAlert, LineChart, PieChart,
+  History, LogOut, User, Settings
 } from "lucide-react"
 import { exportPDF } from "@/lib/api"
+import { useAuth } from "@/context/AuthContext"
+
+// ── Heavy components — lazy loaded ────────────────────────────────────────
+import {
+  LazyHistoricalForecastChart  as HistoricalForecastChart,
+  LazyAnomalyChart             as AnomalyChart,
+  LazyCorrelationHeatmap       as CorrelationHeatmap,
+  LazyWhatIfSimulator          as WhatIfSimulator,
+  LazyDataStory                as DataStory,
+  LazyCategoryDonutChart       as CategoryDonutChart,
+  LazyTopNBarChart             as TopNBarChart,
+  LazyChatWidget               as ChatWidget,
+  LazyInsightPanel             as InsightPanel,
+} from "@/components/dashboard/LazyCharts"
+
 
 const domainEmoji: Record<string, string> = {
   sales: "🛒", hr: "👥", finance: "💰",
   marketing: "📣", inventory: "📦", ecommerce: "🏪", general: "📊",
 }
 
+
 type Tab = "overview" | "insights" | "anomalies" | "forecast" | "segments"
+
 
 const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "overview",  label: "Overview",  icon: <BarChart3 className="w-4 h-4" /> },
@@ -37,17 +46,30 @@ const TABS: { id: Tab; label: string; icon: React.ReactNode }[] = [
   { id: "segments",  label: "Segments",  icon: <PieChart className="w-4 h-4" /> },
 ]
 
+
 export default function DashboardPage() {
   const [data, setData] = useState<AnalysisResult | null>(null)
   const [activeTab, setActiveTab] = useState<Tab>("overview")
   const [exporting, setExporting] = useState(false)
   const router = useRouter()
+  const { user, loading, logout } = useAuth()
 
+
+  // Auth guard
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push("/login")
+    }
+  }, [user, loading, router])
+
+
+  // Load analysis from sessionStorage
   useEffect(() => {
     const stored = sessionStorage.getItem("bizlytics_analysis")
     if (!stored) { router.push("/"); return }
     setData(JSON.parse(stored))
   }, [])
+
 
   const handleExport = async () => {
     if (!data) return
@@ -57,16 +79,28 @@ export default function DashboardPage() {
     setExporting(false)
   }
 
+
+  // Auth loading state
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-[#0d0e1a]">
+      <div className="w-8 h-8 border-2 border-purple-500 border-t-transparent rounded-full animate-spin" />
+    </div>
+  )
+
+
+  // Analysis loading state
   if (!data) return (
     <div className="min-h-screen flex items-center justify-center bg-[#0d0e1a]">
       <p className="text-white/40 animate-pulse">Loading analysis...</p>
     </div>
   )
 
+
   const {
     data_quality, kpis, anomalies, ml_analysis,
     forecast, insights, column_profile, domain
   } = data
+
 
   const hasForecast = forecast?.forecast?.length > 0
   const hasML = ml_analysis?.pca_coords?.length > 0
@@ -77,8 +111,10 @@ export default function DashboardPage() {
   const domainKpis = (kpis as any)._domain_kpis ?? {}
   const sampleRows = (data_quality as any).sample_rows ?? []
 
+
   return (
     <div className="min-h-screen bg-[#0d0e1a] text-white">
+
 
       {/* ── Header ─────────────────────────────────────── */}
       <header className="border-b border-white/10 px-6 py-4 flex items-center justify-between bg-[#0d0e1a] sticky top-0 z-20">
@@ -92,12 +128,49 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+
+        <div className="flex items-center gap-2">
           {domain && (
             <Badge className="bg-white/10 text-white/60 border-0 text-xs hover:bg-white/10">
               {domainEmoji[domain.domain] ?? "📊"} {domain.label}
             </Badge>
           )}
+
+          {/* History */}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => router.push("/history")}
+            className="text-white/40 hover:text-white hover:bg-white/10 rounded-xl gap-1.5 hidden sm:flex"
+          >
+            <History className="w-4 h-4" />
+            History
+          </Button>
+
+          {/* Settings */}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => router.push("/settings")}
+            className="text-white/40 hover:text-white hover:bg-white/10 rounded-xl gap-1.5 hidden sm:flex"
+          >
+            <Settings className="w-4 h-4" />
+            Settings
+          </Button>
+
+          {/* User pill */}
+          {user && (
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10">
+              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
+                <User className="w-3 h-3 text-white" />
+              </div>
+              <span className="text-xs text-white/50 max-w-[120px] truncate">
+                {user.email}
+              </span>
+            </div>
+          )}
+
+          {/* Export PDF */}
           <Button
             size="sm"
             onClick={handleExport}
@@ -109,6 +182,8 @@ export default function DashboardPage() {
               : <><Upload className="w-4 h-4 mr-2" />Export PDF</>
             }
           </Button>
+
+          {/* New Upload */}
           <Button
             size="icon"
             variant="ghost"
@@ -118,8 +193,20 @@ export default function DashboardPage() {
           >
             <RefreshCw className="w-4 h-4" />
           </Button>
+
+          {/* Sign out */}
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={logout}
+            className="rounded-xl text-white/30 hover:text-red-400 hover:bg-red-500/10"
+            title="Sign out"
+          >
+            <LogOut className="w-4 h-4" />
+          </Button>
         </div>
       </header>
+
 
       {/* ── Tabs ───────────────────────────────────────── */}
       <div className="border-b border-white/10 px-6 bg-[#0d0e1a] sticky top-[73px] z-10">
@@ -152,8 +239,10 @@ export default function DashboardPage() {
         </div>
       </div>
 
+
       {/* ── Tab Content ────────────────────────────────── */}
       <main className="max-w-7xl mx-auto px-6 py-8">
+
 
         {/* ══ OVERVIEW ══════════════════════════════════ */}
         {activeTab === "overview" && (
@@ -258,6 +347,7 @@ export default function DashboardPage() {
           </div>
         )}
 
+
         {/* ══ INSIGHTS ══════════════════════════════════ */}
         {activeTab === "insights" && (
           <div className="flex flex-col gap-8">
@@ -294,10 +384,10 @@ export default function DashboardPage() {
           </div>
         )}
 
+
         {/* ══ ANOMALIES ══════════════════════════════════ */}
         {activeTab === "anomalies" && (
           <div className="flex flex-col gap-6">
-
             <div className="flex items-center gap-4 p-4 bg-white/5 border border-white/10 rounded-2xl">
               <ShieldAlert className={`w-8 h-8 flex-shrink-0 ${anomalies.anomaly_count > 0 ? "text-red-400" : "text-green-400"}`} />
               <div className="flex-1">
@@ -372,6 +462,7 @@ export default function DashboardPage() {
           </div>
         )}
 
+
         {/* ══ FORECAST ══════════════════════════════════ */}
         {activeTab === "forecast" && (
           <div className="flex flex-col gap-6">
@@ -408,6 +499,7 @@ export default function DashboardPage() {
           </div>
         )}
 
+
         {/* ══ SEGMENTS ══════════════════════════════════ */}
         {activeTab === "segments" && (
           <div className="flex flex-col gap-6">
@@ -424,12 +516,8 @@ export default function DashboardPage() {
                     </p>
                   </div>
                   <div className="ml-auto flex gap-2">
-                    <Badge className="bg-purple-500/20 text-purple-300 border-0">
-                      K-Means
-                    </Badge>
-                    <Badge className="bg-blue-500/20 text-blue-300 border-0">
-                      PCA
-                    </Badge>
+                    <Badge className="bg-purple-500/20 text-purple-300 border-0">K-Means</Badge>
+                    <Badge className="bg-blue-500/20 text-blue-300 border-0">PCA</Badge>
                   </div>
                 </div>
 
@@ -437,24 +525,19 @@ export default function DashboardPage() {
                   pcaCoords={ml_analysis.pca_coords}
                   segments={ml_analysis.segments}
                   anomalyIndices={anomalies.anomaly_indices}
+                  segmentCount={ml_analysis.segment_count}
                 />
 
-                {/* Segment Size Breakdown */}
                 {ml_analysis.segment_sizes && Object.keys(ml_analysis.segment_sizes).length > 0 && (
                   <Card className="p-5 bg-white/5 border border-white/10 rounded-2xl">
-                    <p className="text-sm font-semibold text-white mb-5">
-                      Segment Size Breakdown
-                    </p>
+                    <p className="text-sm font-semibold text-white mb-5">Segment Size Breakdown</p>
                     <div className="flex flex-col gap-4">
                       {Object.entries(ml_analysis.segment_sizes).map(([seg, count], idx) => {
                         const pct = ((Number(count) / data_quality.total_rows) * 100).toFixed(1)
                         const colors = [
-                          "from-blue-500 to-blue-600",
-                          "from-purple-500 to-purple-600",
-                          "from-green-500 to-green-600",
-                          "from-yellow-500 to-yellow-600",
-                          "from-red-500 to-red-600",
-                          "from-cyan-500 to-cyan-600",
+                          "from-blue-500 to-blue-600", "from-purple-500 to-purple-600",
+                          "from-green-500 to-green-600", "from-yellow-500 to-yellow-600",
+                          "from-red-500 to-red-600", "from-cyan-500 to-cyan-600",
                         ]
                         const dotColors = ["bg-blue-500","bg-purple-500","bg-green-500","bg-yellow-500","bg-red-500","bg-cyan-500"]
                         return (
@@ -462,17 +545,11 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-between mb-2">
                               <div className="flex items-center gap-2">
                                 <span className={`w-3 h-3 rounded-full ${dotColors[idx % dotColors.length]}`} />
-                                <span className="text-sm text-white font-medium">
-                                  Segment {seg}
-                                </span>
+                                <span className="text-sm text-white font-medium">Segment {seg}</span>
                               </div>
                               <div className="flex items-center gap-3">
-                                <span className="text-xs text-white/40">
-                                  {Number(count)} rows
-                                </span>
-                                <span className="text-sm font-bold text-white">
-                                  {pct}%
-                                </span>
+                                <span className="text-xs text-white/40">{Number(count)} rows</span>
+                                <span className="text-sm font-bold text-white">{pct}%</span>
                               </div>
                             </div>
                             <div className="w-full bg-white/10 rounded-full h-2">
@@ -486,7 +563,6 @@ export default function DashboardPage() {
                       })}
                     </div>
 
-                    {/* Segment stats summary */}
                     <div className="grid grid-cols-3 gap-3 mt-6">
                       <div className="bg-white/5 rounded-xl p-3 text-center">
                         <p className="text-lg font-bold text-white">{ml_analysis.segment_count}</p>

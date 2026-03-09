@@ -1,25 +1,53 @@
 import axios from "axios"
 import { AnalysisResult } from "./types"
+import { supabase } from "@/lib/supabase"
 
 const BASE_URL = "http://localhost:8000/api"
+
+// Axios instance with auth interceptor
+const api = axios.create({ baseURL: BASE_URL })
+
+api.interceptors.request.use(async (config) => {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`
+  }
+  return config
+})
+
+// Auto-retry once on 401 with refreshed token
+api.interceptors.response.use(
+  (res) => res,
+  async (error) => {
+    if (error.response?.status === 401) {
+      const { data: { session } } = await supabase.auth.refreshSession()
+      if (session) {
+        error.config.headers.Authorization = `Bearer ${session.access_token}`
+        return api.request(error.config)
+      }
+      // Refresh failed — redirect to login
+      window.location.href = "/login"
+    }
+    return Promise.reject(error)
+  }
+)
 
 export async function uploadFile(file: File): Promise<{ file_id: string; filename: string }> {
   const formData = new FormData()
   formData.append("file", file)
-
-  const res = await axios.post(`${BASE_URL}/upload`, formData, {
+  const res = await api.post("/upload", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   })
   return res.data
 }
 
 export async function fetchAnalysis(fileId: string): Promise<AnalysisResult> {
-  const res = await axios.get(`${BASE_URL}/analysis/${fileId}`)
+  const res = await api.get(`/analysis/${fileId}`)
   return res.data
 }
 
 export async function fetchDataStory(fileId: string): Promise<{ story: string }> {
-  const res = await axios.get(`${BASE_URL}/story/${fileId}`)
+  const res = await api.get(`/story/${fileId}`)
   return res.data
 }
 
@@ -27,14 +55,12 @@ export async function askQuestion(
   fileId: string,
   question: string
 ): Promise<{ answer: string; question: string }> {
-  const res = await axios.post(`${BASE_URL}/chat/${fileId}`, { question })
+  const res = await api.post(`/chat/${fileId}`, { question })
   return res.data
 }
 
 export async function exportPDF(fileId: string): Promise<void> {
-  const res = await axios.get(`${BASE_URL}/export/${fileId}`, {
-    responseType: "blob",
-  })
+  const res = await api.get(`/export/${fileId}`, { responseType: "blob" })
   const url = window.URL.createObjectURL(new Blob([res.data], { type: "application/pdf" }))
   const link = document.createElement("a")
   link.href = url
@@ -56,9 +82,22 @@ export async function compareDatasets(
   formData.append("file2", file2)
   formData.append("label1", label1)
   formData.append("label2", label2)
-
-  const res = await axios.post(`${BASE_URL}/compare`, formData, {
+  const res = await api.post("/compare", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   })
   return res.data
+}
+
+export async function getHistory(): Promise<{ sessions: any[] }> {
+  const res = await api.get("/history")
+  return res.data
+}
+
+export async function getHistorySession(sessionId: string): Promise<any> {
+  const res = await api.get(`/history/${sessionId}`)
+  return res.data
+}
+
+export async function deleteHistorySession(sessionId: string): Promise<void> {
+  await api.delete(`/history/${sessionId}`)
 }

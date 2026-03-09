@@ -1,7 +1,17 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
-  /* config options here */
-};
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "recharts",
+      "plotly.js",
+      "react-plotly.js",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-tooltip",
+    ],
+  },
+  turbopack: {},
+}
 
-export default nextConfig;
+export default nextConfig

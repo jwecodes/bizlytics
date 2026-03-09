@@ -60,6 +60,7 @@ export interface MLAnalysis {
 
 export interface AnomalyRootCause {
   row_index: number
+  anomaly_types?: string[]
   top_reasons: {
     column: string
     value: number
