@@ -107,6 +107,7 @@ def get_full_analysis(file_id: str, current_user=Depends(get_current_user)):
     try:
         sb = get_supabase()
 
+        # Single read — get filename
         file_meta = sb.table("uploaded_files") \
             .select("original_name") \
             .eq("file_id", file_id) \
@@ -119,16 +120,14 @@ def get_full_analysis(file_id: str, current_user=Depends(get_current_user)):
             if file_meta and file_meta.data else "Unknown"
         )
 
+        # COUNT query — transfers no row data, minimal Disk IO
         existing = sb.table("analysis_sessions") \
-            .select("file_id") \
+            .select("file_id", count="exact") \
             .eq("file_id", file_id) \
             .eq("user_id", current_user.id) \
-            .maybe_single() \
             .execute()
 
-        existing_data = existing.data if existing else None
-
-        if not existing_data:
+        if not existing.count:
             storable = {
                 "file_id":        result["file_id"],
                 "domain":         result["domain"],

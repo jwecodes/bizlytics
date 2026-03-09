@@ -11,7 +11,9 @@
 
 ## 📋 Table of Contents
 
+- [Problem Statement](#problem-statement)
 - [Overview](#overview)
+- [Proposed Solution](#proposed-solution)
 - [Features](#features)
 - [Tech Stack](#tech-stack)
 - [System Architecture](#system-architecture)
@@ -26,11 +28,47 @@
 
 ---
 
+## 🧩 Problem Statement
+
+Organizations generate large volumes of operational data across sales, finance, inventory, HR, and customer transactions. Despite this abundance, meaningful insights remain out of reach for most teams — not because the data lacks value, but because existing business intelligence tools demand manual configuration, predefined schemas, and significant analytical expertise to operate.
+
+Most BI platforms are built around **data visualization**, not automated interpretation. This leaves the burden of identifying KPIs, spotting anomalies, reading trends, and deciding on actions entirely on the decision-maker. The result: business data is chronically underutilized, and decisions are made slowly, inconsistently, or on intuition alone.
+
+There is a clear need for an intelligent system that can:
+- Automatically analyze raw business datasets with zero manual setup
+- Generate explainable, domain-aware insights without requiring a data analyst
+- Detect anomalies, forecast future trends, and surface actionable recommendations
+- Support effective, data-driven decisions at the speed modern organizations require
+
+---
+
 ## Overview
 
-**Bizlytics** is an AI-driven Business Intelligence and Decision Support System that democratizes data analytics for organizations of all sizes. Traditional BI tools require specialized expertise, significant setup time, and expensive licensing. Bizlytics removes these barriers by enabling anyone to upload a structured dataset and receive comprehensive, production-grade analysis in seconds.
+**Bizlytics** is an AI-driven Business Intelligence and Decision Support System that democratizes data analytics for organizations of all sizes. Traditional BI tools require specialized expertise, significant setup time, and expensive licensing. Bizlytics removes these barriers — anyone can upload a structured dataset and receive comprehensive, production-grade analysis in seconds.
 
-It combines classical statistical methods, production-grade ML algorithms, and LLM capabilities into a unified, user-friendly web application — evaluated across sales, HR, finance, and marketing domains with results competitive with purpose-built enterprise tools.
+The system automatically profiles uploaded data, detects the business domain, and runs a full analytical pipeline in parallel: KPI generation, anomaly detection, time-series forecasting, and customer segmentation. Results are surfaced through an LLM-generated narrative that explains not just *what* the data shows, but *why it matters* and *what to do next*.
+
+Bizlytics combines classical statistical methods, production-grade ML algorithms (Isolation Forest, K-Means, Prophet), and LLM capabilities (LLaMA-3 via Groq) into a unified, user-friendly web application — evaluated across sales, HR, finance, and marketing domains with results competitive with purpose-built enterprise tools.
+
+---
+
+## 💡 Proposed Solution
+
+Bizlytics addresses the limitations of traditional BI tools by shifting the focus from **manual reporting** to **automated analytical reasoning and decision support**.
+
+### How It Works
+1. **Ingest** — Users upload business data in CSV or Excel format with no configuration required
+2. **Profile** — The system performs automatic data profiling to assess structure, completeness, and statistical characteristics
+3. **Classify** — A domain detector classifies the dataset (Sales, HR, Finance, Marketing, Inventory, or E-commerce) using column-name heuristics
+4. **Analyze** — Domain-aware ML models run in parallel to generate KPIs, detect anomalies, forecast trends, and segment customers
+5. **Explain** — Explainable AI mechanisms surface the reasoning behind each insight, including root cause analysis for anomalies and narrative summaries for trends
+6. **Recommend** — Analytical results are translated into prioritized, actionable recommendations that help organizations move from interpretation to decision
+
+### Key Design Principles
+- **Zero-config by default** — no schema mapping, no metric pre-selection, no dashboard setup
+- **Explainability over black-box outputs** — every anomaly includes top contributing columns; every insight includes supporting evidence
+- **End-to-end in one platform** — from raw CSV to executive PDF report without leaving the application
+- **Accessible to non-technical users** — natural language chat interface allows anyone to query the data in plain English
 
 ---
 
