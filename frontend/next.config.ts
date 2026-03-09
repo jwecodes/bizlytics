@@ -5,13 +5,18 @@ const nextConfig: NextConfig = {
     optimizePackageImports: [
       "lucide-react",
       "recharts",
-      "plotly.js",
-      "react-plotly.js",
       "@radix-ui/react-dialog",
       "@radix-ui/react-tooltip",
     ],
   },
-  turbopack: {},
+  async rewrites() {
+    return [
+      {
+        source: "/api/:path*",
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`,
+      },
+    ]
+  },
 }
 
 export default nextConfig

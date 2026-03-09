@@ -2,7 +2,9 @@ import axios from "axios"
 import { AnalysisResult } from "./types"
 import { supabase } from "@/lib/supabase"
 
-const BASE_URL = "http://localhost:8000/api"
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL
+  ? `${process.env.NEXT_PUBLIC_API_URL}/api`
+  : "http://localhost:8000/api"
 
 // Axios instance with auth interceptor
 const api = axios.create({ baseURL: BASE_URL })
