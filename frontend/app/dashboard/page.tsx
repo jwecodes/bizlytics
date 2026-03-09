@@ -310,7 +310,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Donut + Bar Charts */}
-            {sampleRows.length > 0 && (
+            {sampleRows.length > 0 ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {column_profile.categorical_cols.length > 0 && (
                   <CategoryDonutChart
@@ -326,8 +326,14 @@ export default function DashboardPage() {
                   />
                 )}
               </div>
+            ) : (
+              <Card className="p-6 bg-white/5 border border-white/10 rounded-2xl text-center">
+                <p className="text-white/30 text-sm">
+                  📊 Category charts unavailable — no sample rows returned for this dataset
+                </p>
+              </Card>
             )}
-
+            
             {/* Correlation Heatmap */}
             {hasCorrelations && (
               <CorrelationHeatmap correlations={data_quality.correlations} />
@@ -438,15 +444,25 @@ export default function DashboardPage() {
                             <p className="text-xs text-white/40 mb-1 capitalize">
                               {reason.column.replace(/_/g, " ")}
                             </p>
-                            <p className="text-sm font-bold text-white">
-                              {reason.value.toLocaleString()}
-                            </p>
-                            <p className="text-xs text-white/30">
-                              Normal avg: {reason.normal_avg.toLocaleString()}
-                            </p>
-                            <p className={`text-xs font-semibold mt-1 ${reason.pct_diff > 0 ? "text-red-400" : "text-blue-400"}`}>
-                              {reason.pct_diff > 0 ? "+" : ""}{reason.pct_diff}% deviation
-                            </p>
+                            {(reason as any).type === "categorical" ? (
+                              <p className="text-xs text-white/60 mt-1">
+                                {(reason as any).reason ?? `Unusual value: ${reason.value}`}
+                              </p>
+                            ) : (
+                              <>
+                                <p className="text-sm font-bold text-white">
+                                  {reason.value != null ? Number(reason.value).toLocaleString() : "N/A"}
+                                </p>
+                                <p className="text-xs text-white/30">
+                                  Normal avg: {reason.normal_avg != null ? Number(reason.normal_avg).toLocaleString() : "N/A"}
+                                </p>
+                                <p className={`text-xs font-semibold mt-1 ${(reason.pct_diff ?? 0) > 0 ? "text-red-400" : "text-blue-400"}`}>
+                                  {reason.pct_diff != null
+                                    ? `${reason.pct_diff > 0 ? "+" : ""}${reason.pct_diff}% deviation`
+                                    : "N/A"}
+                                </p>
+                              </>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -576,7 +592,9 @@ export default function DashboardPage() {
                       </div>
                       <div className="bg-white/5 rounded-xl p-3 text-center">
                         <p className="text-lg font-bold text-white">
-                          {Math.max(...Object.values(ml_analysis.segment_sizes).map(Number))}
+                          {Object.values(ml_analysis.segment_sizes).length
+                            ? Math.max(...Object.values(ml_analysis.segment_sizes).map(Number))
+                            : 0}
                         </p>
                         <p className="text-xs text-white/30 mt-0.5">Largest Segment</p>
                       </div>
