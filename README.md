@@ -6,7 +6,6 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688?style=flat-square&logo=fastapi)
 ![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)
-![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 ---
 
@@ -24,8 +23,6 @@
 - [API Reference](#api-reference)
 - [Performance Benchmarks](#performance-benchmarks)
 - [Dataset Recommendations](#dataset-recommendations)
-- [Deployment](#deployment)
-- [Future Work](#future-work)
 
 ---
 
