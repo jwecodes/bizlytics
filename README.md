@@ -1,4 +1,4 @@
-# 🚀 Bizlytics — AI-Powered Business Intelligence
+# 🚀 Bizlytics — AI Driven Business Intelligence and Decision Support System
 
 > Upload any CSV or Excel file. Get KPIs, anomaly detection, forecasts, customer segments, and AI-generated insights in under 12 seconds.
 
@@ -178,9 +178,9 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env
 # Fill in your environment variables
-uvicorn main:app --reload --port 8000
+python -m uvicorn app.main:app --reload --port 8000
 ```
-Backend runs at `http://localhost:8000`
+Backend runs at `http://127.0.0.1:8000/`
 
 ---
 
@@ -198,7 +198,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 GROQ_API_KEY=your_groq_api_key
 SUPABASE_URL=your_supabase_url
 SUPABASE_SERVICE_KEY=your_supabase_service_key
-ALLOWED_ORIGINS=http://localhost:3000
+ALLOWED_ORIGINS=http://127.0.0.1:8000/
 ```
 
 ---
@@ -364,47 +364,6 @@ Returns: labels, pca_coords [[x,y], ...], segment_sizes
 
 ---
 
-## Deployment
-
-### Frontend — Vercel
-```bash
-# Push to GitHub, connect repo to Vercel
-# Add environment variables in Vercel dashboard
-vercel --prod
-```
-
-### Backend — Railway / Render
-```bash
-# Add a Procfile:
-echo "web: uvicorn main:app --host 0.0.0.0 --port $PORT" > Procfile
-
-# Push to Railway or Render
-# Set environment variables in dashboard
-```
-
----
-
-## Future Work
-
-**Short term (3–6 months)**
-- Database connectors — direct MySQL, PostgreSQL, Google Sheets integration
-- Categorical anomaly detection — detect unusual category combinations
-- Multi-language support — column detection and insights in Hindi and other regional languages
-
-**Medium term (6–12 months)**
-- Scheduled analysis — automated daily/weekly reports via email
-- Team collaboration — shared workspaces and report commenting
-- Custom KPI builder — user-defined formulas
-- Advanced forecasting — ARIMA and LSTM options alongside Prophet
-
-**Long term (12+ months)**
-- White-label SaaS — businesses deploy under their own brand
-- Mobile app — iOS/Android for on-the-go report viewing
-- Causal inference — go beyond correlation to identify cause-effect relationships
-- AutoML — auto-train predictive models (churn, demand forecasting) from uploaded data
-
----
-
 ## 👥 Contributors
 
 <table>
@@ -425,11 +384,6 @@ echo "web: uvicorn main:app --host 0.0.0.0 --port $PORT" > Procfile
     </td>
   </tr>
 </table>
-
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
