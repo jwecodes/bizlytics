@@ -1,8 +1,10 @@
 from fastapi import APIRouter, HTTPException, Depends
 from fastapi.responses import JSONResponse, Response
 import json
+import math
 import logging
 import numpy as np
+import pandas as pd
 from app.core.file_handler import load_dataframe
 from app.utils.column_detector import classify_columns, detect_domain, get_domain_kpis
 from app.services.data_profiler import profile_dataset
@@ -22,15 +24,42 @@ logger = logging.getLogger(__name__)
 
 class NumpyEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, np.integer):  return int(obj)
-        if isinstance(obj, np.floating): return float(obj)
-        if isinstance(obj, np.ndarray):  return obj.tolist()
-        if isinstance(obj, float) and (np.isnan(obj) or np.isinf(obj)): return None
+        if isinstance(obj, np.integer):
+            return int(obj)
+        if isinstance(obj, np.floating):
+            return None if (np.isnan(obj) or np.isinf(obj)) else float(obj)
+        if isinstance(obj, np.ndarray):
+            return obj.tolist()
+        if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+            return None
+        try:
+            if pd.isna(obj):
+                return None
+        except (TypeError, ValueError):
+            pass
         return super().default(obj)
 
 
 def clean(obj):
-    return json.loads(json.dumps(obj, cls=NumpyEncoder))
+    """Recursively strip NaN/Inf/NA from any nested dict/list."""
+    if isinstance(obj, dict):
+        return {k: clean(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [clean(v) for v in obj]
+    if isinstance(obj, float) and (math.isnan(obj) or math.isinf(obj)):
+        return None
+    if isinstance(obj, np.floating):
+        return None if (np.isnan(obj) or np.isinf(obj)) else float(obj)
+    if isinstance(obj, np.integer):
+        return int(obj)
+    if isinstance(obj, np.ndarray):
+        return clean(obj.tolist())
+    try:
+        if pd.isna(obj):
+            return None
+    except (TypeError, ValueError):
+        pass
+    return obj
 
 
 # ── /analysis/{file_id} ───────────────────────────────────────────────────
@@ -78,7 +107,6 @@ def get_full_analysis(file_id: str, current_user=Depends(get_current_user)):
     try:
         sb = get_supabase()
 
-        # 1 read — get filename
         file_meta = sb.table("uploaded_files") \
             .select("original_name") \
             .eq("file_id", file_id) \
@@ -91,7 +119,6 @@ def get_full_analysis(file_id: str, current_user=Depends(get_current_user)):
             if file_meta and file_meta.data else "Unknown"
         )
 
-        # 1 read — check if session already stored
         existing = sb.table("analysis_sessions") \
             .select("file_id") \
             .eq("file_id", file_id) \
@@ -140,7 +167,9 @@ def get_full_analysis(file_id: str, current_user=Depends(get_current_user)):
     except Exception as e:
         logger.warning(f"Failed to persist session for {file_id}: {e}")
 
-    return JSONResponse(content=result)
+    # Double-pass through NumpyEncoder to guarantee no NaN leaks through
+    safe_result = json.loads(json.dumps(result, cls=NumpyEncoder))
+    return JSONResponse(content=safe_result)
 
 
 # ── /story/{file_id} ──────────────────────────────────────────────────────
@@ -182,7 +211,7 @@ def export_pdf(file_id: str, current_user=Depends(get_current_user)):
     kpis["_domain_kpis"] = clean(domain_kpis)
 
     anomalies = clean(detect_anomalies(df, cols["numeric_cols"]))
-    ml        = clean(run_ml_analysis(df, cols["numeric_cols"]))   # ← add this line
+    ml        = clean(run_ml_analysis(df, cols["numeric_cols"]))
     insights  = generate_insights(profile, kpis, anomalies, {})
 
     forecast = {}
@@ -200,7 +229,7 @@ def export_pdf(file_id: str, current_user=Depends(get_current_user)):
         insights=insights,
         file_id=file_id,
         forecast=forecast,
-        ml_analysis=ml,        # ← add this line
+        ml_analysis=ml,
     )
 
     return Response(
