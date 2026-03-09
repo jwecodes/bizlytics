@@ -15,6 +15,7 @@ from app.services.pdf_generator import generate_pdf
 from app.core.auth_middleware import get_current_user
 from app.database import get_supabase
 
+
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
@@ -87,7 +88,7 @@ def get_full_analysis(file_id: str, current_user=Depends(get_current_user)):
 
         original_name = (
             file_meta.data.get("original_name", "Unknown")
-            if file_meta.data else "Unknown"
+            if file_meta and file_meta.data else "Unknown"
         )
 
         # 1 read — check if session already stored
@@ -98,10 +99,9 @@ def get_full_analysis(file_id: str, current_user=Depends(get_current_user)):
             .maybe_single() \
             .execute()
 
-        # Only write if this file_id has never been stored before
-        # This halves DB IO — no redundant upserts on re-analysis
-        if not existing.data:
-            # Store only what the History page needs — strip heavy fields
+        existing_data = existing.data if existing else None
+
+        if not existing_data:
             storable = {
                 "file_id":        result["file_id"],
                 "domain":         result["domain"],
@@ -182,6 +182,7 @@ def export_pdf(file_id: str, current_user=Depends(get_current_user)):
     kpis["_domain_kpis"] = clean(domain_kpis)
 
     anomalies = clean(detect_anomalies(df, cols["numeric_cols"]))
+    ml        = clean(run_ml_analysis(df, cols["numeric_cols"]))   # ← add this line
     insights  = generate_insights(profile, kpis, anomalies, {})
 
     forecast = {}
@@ -199,6 +200,7 @@ def export_pdf(file_id: str, current_user=Depends(get_current_user)):
         insights=insights,
         file_id=file_id,
         forecast=forecast,
+        ml_analysis=ml,        # ← add this line
     )
 
     return Response(

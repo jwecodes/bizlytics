@@ -5,7 +5,7 @@ def run_forecast(df: pd.DataFrame, date_col: str, value_col: str, periods: int =
     try:
         df_p = df[[date_col, value_col]].dropna()
         df_p = df_p.rename(columns={date_col: "ds", value_col: "y"})
-        df_p["ds"] = pd.to_datetime(df_p["ds"])
+        df_p["ds"] = pd.to_datetime(df_p["ds"], infer_datetime_format=True, dayfirst=False)
 
         model = Prophet(yearly_seasonality=True, weekly_seasonality=True, daily_seasonality=False)
         model.fit(df_p)
