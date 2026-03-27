@@ -60,7 +60,7 @@ export default function Home() {
             className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/80 transition-colors px-3 py-1.5 rounded-lg hover:bg-white/5"
           >
             <History className="w-3.5 h-3.5" />
-            Histor
+            Histo
           </a>
 
           <a
