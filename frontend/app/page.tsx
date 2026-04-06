@@ -151,13 +151,13 @@ export default function Home() {
 
         {/* Bottom links */}
         <div className="flex flex-col items-center gap-2">
-          <p className="text-xs text-white/20">Already have two datasets to compare?</p>
+          <p className="text-xs text-white/20">Want to compare past year datasets?</p>
           <a
             href="/compare"
             className="flex items-center gap-2 text-sm text-purple-400 hover:text-purple-300 transition-colors"
           >
             <GitCompare className="w-4 h-4" />
-            Compare two datasets side by side →
+            Compare datasets →
           </a>
         </div>
 
